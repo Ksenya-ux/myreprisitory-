@@ -1,0 +1,11 @@
+a = int(input())
+match a:
+	case 3:
+		ptint(3)
+	case 2:
+		print(2)
+	case 1:
+		print(1)
+	case _:
+		print(many)
+	
