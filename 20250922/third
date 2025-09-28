@@ -1,2 +1,0 @@
-a,b,c = eval(input())
-print( a+b+c > 2 * max(a,b,c) and a > 0 and b > 0 and c > 0)

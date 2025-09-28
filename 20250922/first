@@ -1,5 +1,0 @@
-a = eval(input())
-if a:
-	print("None empty")
-else:
-	print("empty")
