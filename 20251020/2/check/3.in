@@ -1,0 +1,4 @@
+:sum6 a b c d e f a+b+c+d+e+f
+sum6 1 2 3 4 15 24
+sum6 10 20 30 40 -10 -20
+quit "{} {}"

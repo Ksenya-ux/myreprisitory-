@@ -1,0 +1,4 @@
+:square x x*x
+square 15
+square 3
+quit "{} {}"
