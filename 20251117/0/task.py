@@ -28,6 +28,7 @@ class C:
 
 
 c = C()
+
 print(f"c.counter = {c.counter}")
 
 d = C()
