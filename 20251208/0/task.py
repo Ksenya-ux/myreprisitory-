@@ -1,4 +1,4 @@
- import asycio
+ import asyncio
  async def  squarer(x):
 	await asyncio.sleep(0)
 	await asyncio.sleep(0)

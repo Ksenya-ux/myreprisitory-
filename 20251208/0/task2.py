@@ -1,4 +1,4 @@
-import asycio
+import asyncio
 async def  snd(x):
 	evsnd.set()
 async def mid(k):
