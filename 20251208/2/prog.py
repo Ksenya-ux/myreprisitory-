@@ -1,51 +1,146 @@
 import asyncio
+import sys
+import random
 
-async def w(q, d, e, i):
-    await asyncio.sleep(d)
-    c = 0
-    while not e.is_set():
-        await q.put(f"{c}_{d}")
-        c += 1
-        await asyncio.sleep(d)
+stop = asyncio.Event()
+stack_ping = asyncio.Event()
 
-async def s(a, b, t, e):
-    while not e.is_set():
-        x = asyncio.create_task(a.get())
-        y = asyncio.create_task(b.get())
-        d, p = await asyncio.wait([x, y], return_when=asyncio.FIRST_COMPLETED)
-        for z in d:
-            try:
-                v = z.result()
-                if v: await t.put(v)
-            except: pass
-        for z in p:
-            z.cancel()
-
-async def r(t, n, d, e):
-    await asyncio.sleep(d)
+async def writer(q, delay, e):
     i = 0
-    while i < n:
-        print(await t.get())
+    while not e.is_set():
+        await q.put(f"{i}_{delay}")
         i += 1
-        if i >= n:
-            e.set()
+        await asyncio.sleep(delay)
+
+async def stacker(q, stack, e):
+    while not e.is_set():
+        try:
+            item = await asyncio.wait_for(q.get(), timeout=0.1)
+            stack.append(item)
+            stack_ping.set()
+        except asyncio.TimeoutError:
+            continue
+        except asyncio.CancelledError:
             break
-        await asyncio.sleep(d)
 
-async def m():
-    a, b, c, n = map(int, input().split(','))
-    q1 = asyncio.Queue()
-    q2 = asyncio.Queue()
-    t = asyncio.Queue()
-    e = asyncio.Event()
+async def reader(stack, n, delay, e):
+    await asyncio.sleep(delay)
+    for i in range(n):
+        while not stack:
+            if e.is_set():
+                return
+            stack_ping.clear()
+            await stack_ping.wait()
+        
+        print(stack.pop())
+        
+        if i < n - 1:
+            await asyncio.sleep(delay)
     
-    async with asyncio.TaskGroup() as g:
-        g.create_task(w(q1, a, e, 1))
-        g.create_task(w(q2, b, e, 2))
-        g.create_task(s(q1, q2, t, e))
-        g.create_task(r(t, n, c, e))
-        while not e.is_set():
-            await asyncio.sleep(0.1)
+    e.set()
 
-if __name__ == "__main__":
-    asyncio.run(m())
+async def main():
+    delay1, delay2, delay3, count = map(int, input().split(','))
+    q = asyncio.Queue()
+    stack = []
+    stop_event = asyncio.Event()
+    
+    writer1_task = asyncio.create_task(writer(q, delay1, stop_event))
+    writer2_task = asyncio.create_task(writer(q, delay2, stop_event))
+    stacker_task = asyncio.create_task(stacker(q, stack, stop_event))
+    reader_task = asyncio.create_task(reader(stack, count, delay3, stop_event))
+    
+    await reader_task
+    
+    writer1_task.cancel()
+    writer2_task.cancel()
+    stacker_task.cancel()
+    
+    await asyncio.gather(
+        writer1_task, 
+        writer2_task, 
+        stacker_task, 
+        return_exceptions=True
+    )
+
+async def merge(A1, A2, start, middle, finish, event_in1, event_in2, event_out):
+    await event_in1.wait()
+    await event_in2.wait()
+
+    i, j, k = start, middle, start
+    while i < middle and j < finish:
+        if A1[i] <= A1[j]:
+            A2[k] = A1[i]
+            i += 1
+        else:
+            A2[k] = A1[j]
+            j += 1
+        k += 1
+
+    while i < middle:
+        A2[k] = A1[i]
+        i += 1
+        k += 1
+
+    while j < finish:
+        A2[k] = A1[j]
+        j += 1
+        k += 1
+
+    event_out.set()
+
+async def mtasks(A):
+    n = len(A)
+
+    Awork = list(A)
+    B = [None] * n
+
+    tasks = []
+    if n <= 1:
+        return tasks, Awork
+
+    events = []
+    for start in range(0, n, 1):
+        e = asyncio.Event()
+        e.set()
+        events.append(e)
+
+    empty_ready = asyncio.Event()
+    empty_ready.set()
+
+    src, dst = Awork, B
+    size = 1
+
+    while size < n:
+        new_events = []
+        run_len = 2 * size
+
+        run_index = 0
+        for start in range(0, n, run_len):
+            middle = min(start + size, n)
+            finish = min(start + run_len, n)
+
+            left_event = events[run_index]
+            run_index += 1
+
+            if middle < finish:
+                right_event = events[run_index]
+                run_index += 1
+            else:
+                right_event = empty_ready
+
+            out_event = asyncio.Event()
+            new_events.append(out_event)
+
+            tasks.append(
+                merge(src, dst, start, middle, finish,
+                      left_event, right_event, out_event)
+            )
+
+        src, dst = dst, src
+        events = new_events
+        size *= 2
+
+    return tasks, src
+
+asyncio.run(main())
