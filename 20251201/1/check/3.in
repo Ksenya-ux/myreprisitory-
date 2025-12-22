@@ -1,0 +1,9 @@
+class Simple(metaclass=dump):
+    def __init__(self, x):
+        self.x = x
+    
+    def double(self):
+        return self.x * 2
+
+s = Simple(5)
+print(s.double())

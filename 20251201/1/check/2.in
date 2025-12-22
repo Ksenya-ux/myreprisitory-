@@ -1,0 +1,11 @@
+class A(metaclass=dump):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def add(self):
+        return self.x + self.y
+
+
+a = A(2, 5)
+print(a.add())
