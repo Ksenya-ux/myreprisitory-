@@ -5,7 +5,6 @@ def dig_count(x):
         x = x // 10
     return ds
 
-n = int(input())
 i = 0
 while i < 3:
     j = 0
