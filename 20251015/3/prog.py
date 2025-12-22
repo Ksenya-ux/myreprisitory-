@@ -1,10 +1,10 @@
-lns = []
-while True:
-    l = input().rstrip()
-    if l == "":
-        break
-    lns.append(l)
+import sys
 
+data = sys.stdin.read().strip().split('\n')
+if not data:
+    sys.exit(0)
+
+lns = data
 h = len(lns)
 w = len(lns[0])
 
@@ -42,8 +42,8 @@ for l in res:
     print(l)
 
 mx = max(g, liq)
-g_len = round(g * 20 / mx)
-liq_len = round(liq * 20 / mx)
+g_len = round(g * 20 / mx) if mx > 0 else 0
+liq_len = round(liq * 20 / mx) if mx > 0 else 0
 
 g_str = f"{g}/{tot}"
 liq_str = f"{liq}/{tot}"
@@ -51,4 +51,3 @@ mx_len = max(len(g_str), len(liq_str))
 
 print('.' * g_len + ' ' * (21 - g_len) + g_str.rjust(mx_len))
 print('~' * liq_len + ' ' * (21 - liq_len) + liq_str.rjust(mx_len))
-

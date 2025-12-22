@@ -1,24 +1,23 @@
-def dig_count(x):
-    ds = 0
-    while x > 0:
-        ds += x % 10
-        x = x // 10
-    return ds
+x = int(input())
 
-n = int(input())
-i = 0
-while i < 3:
-    j = 0
-    while j < 3:
-        a = n + i
-        b = n + j
-        pr = a * b
-        if dig_count(pr) == 6:
-            print(f"{a} * {b} = :)", end="")
+for i in range(3):
+    for j in range(3):
+        p = x + i
+        q = x + j
+        r = p * q
+        
+        t = r
+        v = 0
+        while t > 0:
+            v += t % 10
+            t //= 10
+        
+        if v == 6:
+            print(f"{p} * {q} = :=)", end="")
         else:
-            print(f"{a} * {b} = {pr}", end="")
+            print(f"{p} * {q} = {r}", end="")
+        
         if j < 2:
             print(" ", end="")
-        j += 1
+    
     print()
-    i += 1
