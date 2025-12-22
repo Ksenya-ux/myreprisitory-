@@ -1,20 +1,35 @@
-def sub(x,y):
+import sys
+
+def sub(x, y):
     if type(x) != type(y):
         raise TypeError('у объектов разный тип данных!')
     if isinstance(x, list):
-        ans = list()
+        ans = []
         for i in x:
             if i not in y:
                 ans.append(i)
-    if isinstance(x, tuple):
-        ans = list()
+    elif isinstance(x, tuple):
+        ans = []
         for i in x:
             if i not in y:
                 ans.append(i)
         ans = tuple(ans)
-    if isinstance(x, (float,int, complex)):
+    elif isinstance(x, (float, int, complex)):
         ans = x - y
+    else:
+        raise TypeError('неподдерживаемый тип данных')
     return ans
-inp1,inp2 = eval(input())
-res  = sub(inp1, inp2)
-print(res)
+
+
+data = sys.stdin.read().strip()
+
+try:
+    inp1, inp2 = eval(data) if data else (None, None)
+    result = sub(inp1, inp2)
+    print(result)
+except ValueError:
+    print("Ошибка: требуется два значения через запятую")
+except TypeError as e:
+    print(f"Ошибка: {e}")
+except Exception as e:
+    print(f"Неизвестная ошибка: {e}")

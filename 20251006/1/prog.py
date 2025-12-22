@@ -1,14 +1,20 @@
-def Pareto(pairs):
-    pareto_front = []
-    for i, (x, y) in enumerate(pairs):
-        d = False
-        for j, (a, b) in enumerate(pairs):
-            if a >= x and b >= y and (a > x or b > y):
-                d = True
-                break  
-        if not d:
-            pareto_front.append((x, y))
-    
-    return tuple(pareto_front)
-inp = eval(input())
-print(Pareto(inp))
+import sys
+
+def Pareto(*p):
+    res = []
+    for i, (x, y) in enumerate(p):
+        domin = False
+        for j, (a, b) in enumerate(p):
+            if i == j:
+                continue
+            if x <= a and y <= b and (x < a or y < b):
+                domin = True
+                break
+        if not domin:
+            res.append((x, y))
+    return tuple(res)
+
+data = sys.stdin.read().strip()
+args = eval(data) if data else ()
+result = Pareto(*args)
+print(result)
