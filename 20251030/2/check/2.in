@@ -1,0 +1,5 @@
+P = Triangle((0,0),(4,0),(0,4))
+Q = Triangle((1,3),(3,1),(5,5))
+R = Triangle((-3,-3),(-1,-3),(-3,-1))
+
+print(*(f"{n}({bool(x)}):{round(abs(x),3)}" for n,x in zip("PQR",(P,Q,R))))

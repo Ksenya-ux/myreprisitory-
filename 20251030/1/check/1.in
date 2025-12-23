@@ -1,0 +1,7 @@
+a,b = Omnibus(), Omnibus()
+a.x = 2; b.x = 1
+print(a.x, b.x)
+del a.x
+print(a.x, b.x)
+del a.x
+print(a.x, b.x)

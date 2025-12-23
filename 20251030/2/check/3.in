@@ -1,0 +1,7 @@
+A = Triangle((0,0),(6,0),(0,6))
+B = Triangle((1,1),(2,1),(1,2))
+C = Triangle((7,7),(8,7),(7,8))
+E = Triangle((0,0),(1,1),(2,2))
+
+print(*(f"{n}({bool(x)}):{round(abs(x),3)}" for n,x in zip("ABCE",(A,B,C,E))))
+

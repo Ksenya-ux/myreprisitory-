@@ -1,0 +1,6 @@
+a,b,c = Omnibus(), Omnibus(), Omnibus()
+print(a.zz, c.zz)
+a.flag = True; b.flag = False
+print(a.flag, b.flag, c.flag)
+del b.flag
+print(a.flag, b.flag, c.flag)
