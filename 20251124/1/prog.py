@@ -22,8 +22,7 @@ def main():
     parts.sort()
     
     result = bytes([N]) + b''.join(parts)
-    
-    # Универсальный вывод
+ 
     if hasattr(sys.stdout, 'buffer'):
         sys.stdout.buffer.write(result)
     else:
@@ -34,3 +33,4 @@ if __name__ == "__main__":
     main()
 
 exec(sys.stdin.read())
+
