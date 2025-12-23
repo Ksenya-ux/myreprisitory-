@@ -1,35 +1,18 @@
-import sys
-
-def sub(x, y):
-    if type(x) != type(y):
-        raise TypeError('у объектов разный тип данных!')
-    if isinstance(x, list):
-        ans = []
-        for i in x:
-            if i not in y:
-                ans.append(i)
-    elif isinstance(x, tuple):
-        ans = []
-        for i in x:
-            if i not in y:
-                ans.append(i)
-        ans = tuple(ans)
-    elif isinstance(x, (float, int, complex)):
-        ans = x - y
+def Subtr(obj1, obj2):
+    if isinstance(obj1, (list, tuple)) and isinstance(obj2, (list, tuple)):
+        set2 = set(obj2)
+        result = []
+        
+        for item in obj1:
+            if item not in set2:
+                result.append(item)
+            else:
+                set2.remove(item)
+        return type(obj1)(result)
+    
     else:
-        raise TypeError('неподдерживаемый тип данных')
-    return ans
-
-
-data = sys.stdin.read().strip()
-
-try:
-    inp1, inp2 = eval(data) if data else (None, None)
-    result = sub(inp1, inp2)
-    print(result)
-except ValueError:
-    print("Ошибка: требуется два значения через запятую")
-except TypeError as e:
-    print(f"Ошибка: {e}")
-except Exception as e:
-    print(f"Неизвестная ошибка: {e}")
+        return obj1 - obj2
+    
+data = eval(input())
+result = Subtr(*data)
+print(result)
