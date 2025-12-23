@@ -1,7 +1,16 @@
-__init__: (), {}
-increment: (), {}
-1
-increment: (), {'step': 3}
-4
-increment: (), {'reset': True}
-0
+class Calculator(metaclass=dump):
+    def __init__(self, name):
+        self.name = name
+    
+    def calculate(self, x, y, operation="add", verbose=False):
+        if operation == "add":
+            return x + y
+        elif operation == "sub":
+            return x - y
+        return 0
+    
+    def greet(self, message="Hello", times=1):
+        return f"{message}, {self.name}!" * times
+
+calc = Calculator("Python")
+

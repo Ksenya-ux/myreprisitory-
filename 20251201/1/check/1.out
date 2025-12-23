@@ -1,7 +1,1 @@
-__init__: (), {}
-increment: (), {}
-1
-increment: (), {'step': 3}
-4
-increment: (), {'reset': True}
-0
+__init__: ('Python',), {}
