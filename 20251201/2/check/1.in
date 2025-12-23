@@ -1,12 +1,4 @@
-; Сумма 1+2+3+4+5+6 в переменной s
-
-    store 1 i      ; текущий слагаемый
-    store 1 one    ; константа 1
-    store 6 n      ; верхняя граница
-    store 0 s      ; сумма
-
-loop:   add s i s   ; s = s + i
-        add i one i ; i = i + 1
-        ifle i n loop
-        out s
-
+store 5 a
+store 10 b
+ifgt b a good
+out a
