@@ -104,3 +104,4 @@ class Triangle:
 
 import sys
 exec(sys.stdin.read())
+
