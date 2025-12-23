@@ -1,0 +1,7 @@
+@objcount
+class A:
+    pass
+
+a1 = A()
+a1 = None
+print(A.counter)

@@ -1,0 +1,2 @@
+wo = Vowel(y=22, a=12, i=3)
+print(wo, wo.full)

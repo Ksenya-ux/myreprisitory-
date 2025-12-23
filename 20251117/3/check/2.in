@@ -1,0 +1,2 @@
+w9 = Vowel(a=1)
+print("Test 9a:", w9, w9.full)  

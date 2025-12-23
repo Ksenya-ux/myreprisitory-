@@ -1,0 +1,6 @@
+w8 = Vowel(a=1, e=2)
+print("Test 8: full до записи:", w8.full) 
+w8.full = True
+print("Test 8: full после записи True:", w8.full) 
+w8.full = False
+print("Test 8: full после записи False:", w8.full)  
