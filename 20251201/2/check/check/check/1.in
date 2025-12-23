@@ -1,4 +1,0 @@
-store 5 a
-store 10 b
-ifgt b a good
-out a

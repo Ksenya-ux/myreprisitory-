@@ -1,4 +1,0 @@
-store 12.5 x
-store 3.14 y
-iflt x y jump_here  ; метка jump_here не существует
-out x
