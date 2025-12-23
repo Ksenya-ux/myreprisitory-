@@ -1,4 +1,4 @@
-import asyncio
+iimport asyncio
 
 stop = asyncio.Event()
 stack_ping = asyncio.Event()
@@ -47,19 +47,20 @@ async def reader(stack, cnt, delay):
     return
 
 async def main():
-    delay1, delay2, delay3, count = [int(x.strip()) for x in input().split(",")]
+    d1, d2, d3, cnt = [int(x.strip()) for x in input().split(",")]
     q = asyncio.Queue()
     st = []
 
-    t1 = asyncio.create_task(writer(q, delay1))
-    t2 = asyncio.create_task(writer(q, delay2))
+    t4 = asyncio.create_task(reader(st, cnt, d3))
+    t1 = asyncio.create_task(writer(q, d1))
+    t2 = asyncio.create_task(writer(q, d2))
     t3 = asyncio.create_task(stacker(q, st))
-    t4 = asyncio.create_task(reader(st, count, delay3))
 
     await t4
     await asyncio.gather(t1, t2, t3, return_exceptions=True)
 
 asyncio.run(main())
+
 
 import sys
 exec(sys.stdin.read())

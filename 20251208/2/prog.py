@@ -142,5 +142,5 @@ async def mtasks(A):
         size *= 2
 
     return tasks, src
-
-asyncio.run(main())
+import sys
+exec(sys.stdin.read())
