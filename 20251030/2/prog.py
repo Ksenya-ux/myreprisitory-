@@ -1,51 +1,106 @@
 class Triangle:
-    def __init__(self, a,b,c):
-        self.a, self.b, self.c = tuple(a), tuple(b), tuple(c)
+    def __init__(self, *points):
+        self.points = [tuple(p) for p in points]
+    
+    def __abs__(self):
+        if len(self.points) != 3:
+            return 0
+        
+        (x1, y1), (x2, y2), (x3, y3) = self.points
+        area = abs((x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)) / 2)
+        return area
+    
+    def __bool__(self):
+        return abs(self) > 0
+    
+    def __lt__(self, other):
+        return abs(self) < abs(other)
+    
+    def _contains_point(self, point):
+        if not self:
+            return False
+        
+        (x1, y1), (x2, y2), (x3, y3) = self.points
+        x, y = point
 
-    def _area2(self):
-        ax,ay = self.a; bx,by = self.b; cx,cy = self.c
-        return abs((bx-ax)*(cy-ay) - (by-ay)*(cx-ax))
+        def sign(p1, p2, p3):
+            return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
+        
+        d1 = sign((x, y), (x1, y1), (x2, y2))
+        d2 = sign((x, y), (x2, y2), (x3, y3))
+        d3 = sign((x, y), (x3, y3), (x1, y1))
+        
+        has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+        has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+        
+        return not (has_neg and has_pos)
+    
+    def __contains__(self, other):
+        if not other:
+            return True
+        if not self:
+            return False
 
-    def __abs__(self):   return self._area2() / 2.0
-    def __bool__(self):  return self._area2() != 0
-    def __lt__(self, o): return abs(self) < abs(o)
+        for point in other.points:
+            if not self._contains_point(point):
+                return False
+        return True
+    
+    def _segments_intersect(self, p1, p2, q1, q2):
+        def orientation(p, q, r):
+            val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+            if val == 0:
+                return 0
+            return 1 if val > 0 else 2
+        
+        def on_segment(p, q, r):
+            return (min(p[0], r[0]) <= q[0] <= max(p[0], r[0]) and
+                    min(p[1], r[1]) <= q[1] <= max(p[1], r[1]))
+        
+        o1 = orientation(p1, p2, q1)
+        o2 = orientation(p1, p2, q2)
+        o3 = orientation(q1, q2, p1)
+        o4 = orientation(q1, q2, p2)
+        
+        if o1 != o2 and o3 != o4:
+            return True
 
-    def __contains__(self, o):
-        if not o: return True
-        if not self: return False
-        A,B,C = self.a,self.b,self.c
-        def a2(p,q,r):
-            return abs((q[0]-p[0])*(r[1]-p[1]) - (q[1]-p[1])*(r[0]-p[0]))
-        def inside(p):
-            S  = a2(A,B,C)
-            return a2(p,B,C)+a2(A,p,C)+a2(A,B,p) == S
-        return inside(o.a) and inside(o.b) and inside(o.c)
+        if o1 == 0 and on_segment(p1, q1, p2):
+            return True
+        if o2 == 0 and on_segment(p1, q2, p2):
+            return True
+        if o3 == 0 and on_segment(q1, p1, q2):
+            return True
+        if o4 == 0 and on_segment(q1, p2, q2):
+            return True
+        
+        return False
+    
+    def __and__(self, other):
+        if not self or not other:
+            return False
 
-    def __and__(self, o):
-        if (not self) or (not o): return False
-        A,B,C = self.a,self.b,self.c
-        D,E,F = o.a,o.b,o.c
+        for p in self.points:
+            if other._contains_point(p):
+                return True
+        for p in other.points:
+            if self._contains_point(p):
+                return True
 
-        def ori(p,q,r):
-            s = (q[0]-p[0])*(r[1]-p[1]) - (q[1]-p[1])*(r[0]-p[0])
-            return 0 if s==0 else (1 if s>0 else -1)
-        def on_seg(p,q,r):
-            if ori(p,q,r)!=0: return False
-            return min(p[0],q[0])<=r[0]<=max(p[0],q[0]) and min(p[1],q[1])<=r[1]<=max(p[1],q[1])
-        def seg_int(p1,q1,p2,q2):
-            o1,o2 = ori(p1,q1,p2), ori(p1,q1,q2)
-            o3,o4 = ori(p2,q2,p1), ori(p2,q2,q1)
-            if o1==0 and on_seg(p1,q1,p2): return True
-            if o2==0 and on_seg(p1,q1,q2): return True
-            if o3==0 and on_seg(p2,q2,p1): return True
-            if o4==0 and on_seg(p2,q2,q1): return True
-            return (o1*o2<0) and (o3*o4<0)
-
-        E1=[(A,B),(B,C),(C,A)]; E2=[(D,E),(E,F),(F,D)]
-        for (p1,q1) in E1:
-            for (p2,q2) in E2:
-                if seg_int(p1,q1,p2,q2): return True
-        return (o in self) or (self in o)
+        sides_self = [(self.points[0], self.points[1]),
+                      (self.points[1], self.points[2]),
+                      (self.points[2], self.points[0])]
+        
+        sides_other = [(other.points[0], other.points[1]),
+                       (other.points[1], other.points[2]),
+                       (other.points[2], other.points[0])]
+        
+        for s1 in sides_self:
+            for s2 in sides_other:
+                if self._segments_intersect(s1[0], s1[1], s2[0], s2[1]):
+                    return True
+        
+        return False
 
 import sys
 exec(sys.stdin.read())
