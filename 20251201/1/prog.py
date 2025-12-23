@@ -1,7 +1,12 @@
-class sole(type):
-	def __new__(metcls, name, parents, namespace):
-		for cls in parents:
-			if isinstance(cls,final):
-				raise TypeError(f"{cls.__name__} is final")
-		return super().__new__(metcls, name, parents, namespace)
+class dump(type):
+    def __new__(mcls, clsname, bases, dct):
+        for name, obj in list(dct.items()):
+            if isinstance(obj, type(lambda: 0)):
+                def wrapper(*args, __f=obj, __n=name, **kwargs):
+                    print(f"{__n}: {args[1:]}, {kwargs}")
+                    return __f(*args, **kwargs)
+                dct[name] = wrapper
+        return type.__new__(mcls, clsname, bases, dct)
 
+import sys
+exec(sys.stdin.read())
