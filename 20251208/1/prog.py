@@ -1,4 +1,4 @@
-iimport asyncio
+import asyncio
 
 stop = asyncio.Event()
 stack_ping = asyncio.Event()
