@@ -1,94 +1,62 @@
+import sys
 import math
 
-W, H, a, b, formula = map(str.strip, input().split())
-W, H = int(W), int(H)
-a, b = float(a), float(b)
-
-def f(x):
-    return eval(formula, {"x": x, "math": math, "builtins": {}})
-
-y_vals = []
-x_vals = []
-for i in range(W):
-    x_val = a + (b - a) * i / (W - 1)
-    try:
-        y = f(x_val)
-        if not (math.isnan(y) or math.isinf(y)):
-            y_vals.append(y)
-            x_vals.append(x_val)
-    except:
-        pass
-
-if not y_vals:
-    y_min, y_max = 0, 1
-else:
-    y_min, y_max = min(y_vals), max(y_vals)
-    if y_min == y_max:
-        y_min -= 1
-        y_max += 1
-
-grid = [[' ' for _ in range(W)] for _ in range(H)]
-
-points = []
-for i in range(W):
-    x_val = a + (b - a) * i / (W - 1)
-    try:
-        y = f(x_val)
-        if math.isnan(y) or math.isinf(y):
-            points.append(None)
-            continue
-        row_idx = int((y - y_min) / (y_max - y_min) * (H - 1))
-        row_idx = max(0, min(H - 1, row_idx))
-        points.append(row_idx)
-    except:
-        points.append(None)
-
-for i in range(W):
-    if points[i] is not None:
-        screen_row = H - 1 - points[i]
-        grid[screen_row][i] = '*'
-
-for i in range(1, W):
-    if points[i] is not None and points[i-1] is not None:
-        row1 = H - 1 - points[i-1]
-        row2 = H - 1 - points[i]
-        col1 = i-1
-        col2 = i
-        
-        if row1 != row2:
-            min_row = min(row1, row2)
-            max_row = max(row1, row2)
-            for r in range(min_row, max_row + 1):
-                grid[r][col1] = '*'
-                grid[r][col2] = '*'
-        else:
-            grid[row1][col1] = '*'
-            grid[row1][col2] = '*'
-
-for x in range(W):
-    star_positions = []
-    for y in range(H):
-        if grid[y][x] == '*':
-            star_positions.append(y)
+def draw_graph(W, H, A, B, formula):
+    screen = [[' ' for _ in range(W)] for __ in range(H)]
     
-    if len(star_positions) == 1:
-        y_pos = star_positions[0]
-        if (x > 0 and grid[y_pos][x-1] == '*') or (x < W-1 and grid[y_pos][x+1] == '*'):
-            pass
-        else:
-            if x > 0 and x < W-1:
-                up_has = y_pos > 0 and grid[y_pos-1][x-1] == '*' and grid[y_pos-1][x+1] == '*'
-                down_has = y_pos < H-1 and grid[y_pos+1][x-1] == '*' and grid[y_pos+1][x+1] == '*'
-                if not (up_has or down_has):
-                    grid[y_pos][x] = ' '
-    elif len(star_positions) >= 2:
-        min_y = min(star_positions)
-        max_y = max(star_positions)
-        for y in range(min_y + 1, max_y):
-            grid[y][x] = '*'
+    num_points = W * 4
+    xs = [A + (B - A) * i / (num_points - 1) for i in range(num_points)]
+    fs = []
+    for x in xs:
+        try:
+            val = eval(formula, {"__builtins__": {}}, {"x": x, "sin": math.sin, "cos": math.cos,
+                                                       "tan": math.tan, "exp": math.exp, "log": math.log,
+                                                       "sqrt": math.sqrt, "pi": math.pi, "e": math.e})
+        except:
+            val = float('nan')
+        fs.append(val)
+    
+    valid_fs = [f for f in fs if not math.isnan(f)]
+    if not valid_fs:
+        print("No valid values")
+        return
+    min_f = min(valid_fs)
+    max_f = max(valid_fs)
+    
+    if abs(max_f - min_f) < 1e-9:
+        max_f = min_f + 1
+    
+    def to_screen(x, f):
+        col = int((x - A) / (B - A) * (W - 1))
+        row = int((max_f - f) / (max_f - min_f) * (H - 1))
+        col = max(0, min(col, W - 1))
+        row = max(0, min(row, H - 1))
+        return col, row
+    
+    for i in range(len(xs) - 1):
+        x1, x2 = xs[i], xs[i + 1]
+        f1, f2 = fs[i], fs[i + 1]
+        if math.isnan(f1) or math.isnan(f2):
+            continue
+        col1, row1 = to_screen(x1, f1)
+        col2, row2 = to_screen(x2, f2)
+        steps = max(abs(col2 - col1), abs(row2 - row1)) or 1
+        for s in range(steps + 1):
+            t = s / steps
+            col = int(col1 + (col2 - col1) * t)
+            row = int(row1 + (row2 - row1) * t)
+            if 0 <= col < W and 0 <= row < H:
+                screen[row][col] = '*'
+    
+    for row in screen:
+        print(''.join(row))
 
-for row in grid:
-    print(''.join(row))
-
-import sys
-exec(sys.stdin.read())
+if __name__ == "__main__":
+    data = sys.stdin.read().strip().split()
+    if len(data) < 5:
+        exec(sys.stdin.read())
+    else:
+        W, H = int(data[0]), int(data[1])
+        A, B = float(data[2]), float(data[3])
+        formula = ' '.join(data[4:])
+        draw_graph(W, H, A, B, formula)
