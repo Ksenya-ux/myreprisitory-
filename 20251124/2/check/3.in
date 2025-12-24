@@ -1,4 +1,1 @@
-store 1 x
-store 777 y
-iflt x y jump_here  ; метка jump_here не существует
-out x
+Êðàñèâî

@@ -1,0 +1,4 @@
+a = DivStr("Trafs")
+print(* a // 2)
+print(*a.lower() // 3)
+print(a % 5)

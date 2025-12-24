@@ -7,9 +7,10 @@ async def main(A):
     await asyncio.gather(*tasks)
     return B
 
-random.seed(55)
-A = random.choices(range(20), k=8)
+random.seed(1338)
+A = random.choices(range(9), k=5)  
 B = asyncio.run(main(A))
 print(*A)
 print(*B)
+print(B == sorted(A))
 

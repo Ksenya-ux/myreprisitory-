@@ -8,8 +8,9 @@ async def main(A):
     return B
 
 random.seed(77)
-A = random.choices(range(10), k=18)
+A = random.choices(range(20), k=5)  
 B = asyncio.run(main(A))
 print(*A)
 print(*B)
 print(B == sorted(A))
+
