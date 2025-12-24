@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, random
 
 async def main(A):
     tasks, B = await mtasks(A)
@@ -7,9 +7,8 @@ async def main(A):
     await asyncio.gather(*tasks)
     return B
 
-
-random.seed(1337)
-A = random.choices(range(10), k=33)
+random.seed(77)
+A = random.choices(range(10), k=18)
 B = asyncio.run(main(A))
 print(*A)
 print(*B)

@@ -1,14 +1,12 @@
 import asyncio
-import random
-import math
+import sys
+from math import log2
 
-async def merge(A1, A2, start, middle, finish, event_in1, event_in2, event_out):
-    await event_in1.wait()
-    await event_in2.wait()
-    
-    i, j, k = start, middle, start
-    
-    while i < middle and j < finish:
+async def merge(A1, A2, s, m, f, e1, e2, eo):
+    await e1.wait()
+    await e2.wait()
+    i, j, k = s, m, s
+    while i < m and j < f:
         if A1[i] <= A1[j]:
             A2[k] = A1[i]
             i += 1
@@ -16,85 +14,61 @@ async def merge(A1, A2, start, middle, finish, event_in1, event_in2, event_out):
             A2[k] = A1[j]
             j += 1
         k += 1
-    
-    while i < middle:
+    while i < m:
         A2[k] = A1[i]
         i += 1
         k += 1
-    
-    while j < finish:
+    while j < f:
         A2[k] = A1[j]
         j += 1
         k += 1
-    
-    event_out.set()
-
-async def copy_segment(A1, A2, start, finish, event_in, event_out):
-
-    await event_in.wait()
-    for i in range(start, finish):
-        A2[i] = A1[i]
-    event_out.set()
+    eo.set()
 
 async def mtasks(A):
-
     n = len(A)
-    
     if n <= 1:
         return [], A[:]
-   
-    Awork = A[:]  
-    B = [0] * n   
     
-    tasks = []
+    B = [0] * n
+    ts = []
+    sev = []
+    for _ in range((n + 1) // 1):
+        e = asyncio.Event()
+        e.set()
+        sev.append(e)
     
-    levels = math.ceil(math.log2(n)) if n > 1 else 0
+    l = 1
+    src, dst = A, B
     
-
-    if levels % 2 == 1:
-        src, dst = Awork, B
-    else:
-        src, dst = B, Awork
-        B[:] = Awork[:]
-    
-    block_size = 1
-    blocks = n
-    events = [asyncio.Event() for _ in range(blocks)]
-    for ev in events:
-        ev.set()  
-
-    while block_size < n:
-        new_events = []
-        new_blocks = (n + 2 * block_size - 1) // (2 * block_size)
-        
-        for block in range(0, blocks, 2):
-            start = block * block_size
-            middle = min(start + block_size, n)
-            finish = min(start + 2 * block_size, n)
-            
-            ev_out = asyncio.Event()
-            new_events.append(ev_out)
-            
-            if block + 1 < blocks:
-  
-                task = merge(src, dst, start, middle, finish,
-                            events[block], events[block + 1], ev_out)
-            else:
- 
-                task = copy_segment(src, dst, start, finish,
-                                   events[block], ev_out)
-            
-            tasks.append(task)
-        
-  
-        events = new_events
-        blocks = new_blocks
+    while l < n:
+        tev = []
+        for s in range(0, n, 2 * l):
+            m = min(s + l, n)
+            f = min(s + 2 * l, n)
+            if m >= f:
+                for i in range(s, f):
+                    dst[i] = src[i]
+                e = asyncio.Event()
+                e.set()
+                tev.append(e)
+                continue
+            eo = asyncio.Event()
+            tev.append(eo)
+            i1 = s // l
+            i2 = m // l
+            e1 = sev[i1] if i1 < len(sev) else asyncio.Event()
+            e2 = sev[i2] if i2 < len(sev) else asyncio.Event()
+            if isinstance(e1, list):
+                e1 = e1[0] if e1 else asyncio.Event()
+            if isinstance(e2, list):
+                e2 = e2[0] if e2 else asyncio.Event()
+            t = merge(src, dst, s, m, f, e1, e2, eo)
+            ts.append(t)
         src, dst = dst, src
-        block_size *= 2
+        sev = tev
+        l *= 2
     
-    return tasks, B
+    return ts, src
 
-import sys
-exec(sys.stdin.read())
-
-
+if __name__ == "__main__":
+    exec(sys.stdin.read())
